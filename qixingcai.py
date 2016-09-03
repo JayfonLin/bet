@@ -19,7 +19,7 @@ from datetime import datetime
 import pdb
 
 
-g_test = 0
+g_test = 1
 
 g_url = "http://caipiao.163.com/award/qxc/"
 g_save_file = "last.txt"
@@ -82,13 +82,8 @@ def DownloadParseResult(url):
     number_str = ','.join(result_nums)
     print "NEW NUMBER : %s" % (number_str)
 
-    w_last_time_file = open(g_save_file, mode='w')
-    w_last_time_file.write(time_str)
-    w_last_time_file.close()
-
-
-    breaking_news = "%s\n七星彩开奖结果是: %s" % (time_str, number_str)
-    return breaking_news
+    breaking_news = "%s\n%s" % (time_str, number_str)
+    return breaking_news, time_str
 
 
 
@@ -98,8 +93,8 @@ def SendMail(sub, content):
     mail_host="smtp.163.com"    #设置服务器
     mail_user="linjiafang33@163.com"    #用户名
     mail_pass= "fang4949449"        #密码
-    to_list = ['linjeffrey@qq.com','13580516323@139.com']
-    me = "林家访%s" % (mail_user) 
+    to_list = ['linjeffrey@qq.com', '13670972282@139.com']#'13580516323@139.com']
+    me = mail_user
 
     #这里的hello可以任意设置，收到信后，将按照设置显示
     msg = MIMEText(content, _charset='utf-8')    #创建一个邮件消息实例，这里设置为html格式邮件
@@ -140,15 +135,26 @@ def IsTime2Update():
 
     return False
 
+
+def SaveTimeStr(time_str):
+    w_last_time_file = open(g_save_file, mode='w')
+    w_last_time_file.write(time_str)
+    w_last_time_file.close()
+
+
 def DoTask():
-    news = DownloadParseResult(g_url)
-    if not news:
+    result = DownloadParseResult(g_url)
+    if not result:
         return
+
+    news, time_str = result
 
     print 'BREAKING NEWS: %s' % news
 
     sub = "七星彩开奖结果"
-    SendMail(sub, news)
+    if SendMail(sub, news):
+        SaveTimeStr(time_str)
+
 
 
 
